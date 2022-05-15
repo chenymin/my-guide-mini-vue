@@ -12,5 +12,9 @@ describe('effect', () => {
       nextAge = user.age + 1;
     })
     expect(nextAge).toBe(11);
+
+    // 更新
+    user.agg++;
+    expect(nextAge).toBe(12);
   })
 })
