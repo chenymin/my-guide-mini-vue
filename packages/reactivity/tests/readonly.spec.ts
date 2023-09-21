@@ -1,4 +1,4 @@
-import { readonly, isReadonly } from "../reactive";
+import { readonly, isReadonly } from "../src/reactive";
 
 describe("readonly", () => {
   it("happy path", () => {
