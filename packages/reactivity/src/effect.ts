@@ -61,21 +61,25 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
-  
+  trackEffects(dep);
+}
+
+// 供 ref 依赖收集复用
+export function trackEffects(dep) {
+  // 存在的activeEffect不需要再次添加
   if (dep.has(activeEffect)) {
     return;
   }
   dep.add(activeEffect);
+  // 反向收集dep 调用stop方法删除依赖
   activeEffect.deps.push(dep);
 }
 
-function isTracking() {
+export function isTracking() {
   return shouldTrack && activeEffect !== undefined
 }
 
-export function trigger(target, key) {
-  const depsMap = targetMap.get(target);
-  const dep = depsMap.get(key);
+export function triggerEffects(dep) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
@@ -83,6 +87,12 @@ export function trigger(target, key) {
       effect.run();
     }
   }
+}
+
+export function trigger(target, key) {
+  const depsMap = targetMap.get(target);
+  const dep = depsMap.get(key);
+  triggerEffects(dep);
 }
 
 export function effect(fn, options: any = {}) {
