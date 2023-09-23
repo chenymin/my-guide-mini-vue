@@ -2,6 +2,8 @@ import { ReactiveEffect } from './effect'
 
 class ComputedRefImpl {
   private _getter;
+  // 用来控制计算值的缓存，当依赖值发生变化时将_dirty置为true，保证值变更后获取到新值
+  // 主要是利用
   private _dirty = true;
   private _value;
   private _effect;
