@@ -6,6 +6,7 @@ class RefImpl {
   private _value:any;
   private dep;
   private _rawValue;
+  public __v_isRef = true;
 
   constructor(value) {
     this._rawValue = value;
@@ -37,4 +38,12 @@ function convert(value) {
 export const ref = (value) => {
   const ref = new RefImpl(value);
   return ref;
+}
+
+export const isRef = (ref) => {
+  return !!ref.__v_isRef
+}
+
+export const unRef = (ref) => {
+  return ref.__v_isRef ? ref.value : ref;
 }
