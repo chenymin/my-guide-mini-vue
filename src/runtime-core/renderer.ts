@@ -1,5 +1,6 @@
 import { isObject } from "../shared/src/index";
 import { createComponentInstance, setupComponent } from "./component";
+import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 
 export function render(vnode, container) {
   patch(vnode, container);
@@ -23,7 +24,7 @@ function processElement(vnode, container) {
 }
 
 function mountElement(vnode, container) {
-  const el = document.createElement(vnode.type);
+  const el = (vnode.el = document.createElement(vnode.type));
   const { children } = vnode;
   if (typeof children === 'string') {
     el.textContent = children;
@@ -49,15 +50,19 @@ function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container);
 }
 
-function mountComponent(vnode: any, container) {
-  const instance = createComponentInstance(vnode);
+function mountComponent(initVnode: any, container) {
+  const instance = createComponentInstance(initVnode);
 
+  instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers)
   setupComponent(instance);
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, initVnode, container);
 }
 
-function setupRenderEffect(instance: any, container) {
-  const subTree = instance.render();
+function setupRenderEffect(instance: any, initVnode, container) {
+  const {proxy} = instance
+  const subTree = instance.render.call(proxy);
 
   patch(subTree, container);
+
+  initVnode.el = subTree.el;
 }
