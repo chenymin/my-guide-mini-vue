@@ -2,6 +2,7 @@ import { isObject } from "../shared/src/index";
 import { ShapeFlags } from "../shared/src/ShapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
+import { Fragment, Text } from "./vnode";
 
 export function render(vnode, container) {
   patch(vnode, container);
@@ -12,12 +13,23 @@ function patch(vnode, container) {
   // 是 element 那么就应该处理 element
   // 思考题： 如何去区分是 element 还是 component 类型呢？
   // processElement();
-  const { shapeFlag } = vnode;
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+  const { type , shapeFlag } = vnode;
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+    break;
+    case Text:
+      processText(vnode, container);
+    break;
+    default:
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      }
+    break;
   }
+ 
   console.log(vnode.type);
 }
 
@@ -74,3 +86,13 @@ function setupRenderEffect(instance: any, initVnode, container) {
 
   initVnode.el = subTree.el;
 }
+function processFragment(vnode, container) {
+  mountChildren(vnode, container);
+}
+
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.appendChild(textNode);
+}
+
