@@ -3,7 +3,7 @@ import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
 import { initSlots } from "./componentSlots";
 
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parent) {
   const component = {
     vnode,
     type: vnode.type,
@@ -11,6 +11,8 @@ export function createComponentInstance(vnode) {
     props: {},
     slots: {},
     emit: () => {},
+    provides: parent ? parent.provides : {},
+    parent
   };
   component.emit = emit.bind(null, component) as any;
   return component;
