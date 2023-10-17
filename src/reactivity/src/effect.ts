@@ -18,7 +18,6 @@ export class ReactiveEffect {
     }
     shouldTrack = true;
     activeEffect = this;
-
     const result = this._fn();
 
     shouldTrack = false;
